@@ -1,9 +1,6 @@
 {
-  "platforms": ["apple", "android", "web"],
+  "platforms": ["apple"],
   "apple": {
     "modules": ["ExpoAlarmKitModule"]
-  },
-  "android": {
-    "modules": ["expo.modules.alarmkit.ExpoAlarmKitModule"]
   }
 }

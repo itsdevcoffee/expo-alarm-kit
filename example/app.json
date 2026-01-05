@@ -14,7 +14,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "expo.modules.alarmkit.example"
+      "bundleIdentifier": "expo.modules.alarmkit.example",
+      "appleTeamId": "KTBFQFW59U"
     },
     "android": {
       "adaptiveIcon": {

@@ -4,16 +4,9 @@ export type OnLoadEventPayload = {
   url: string;
 };
 
-export type ExpoAlarmKitModuleEvents = {
-  onChange: (params: ChangeEventPayload) => void;
-};
-
-export type ChangeEventPayload = {
-  value: string;
-};
-
 export type ExpoAlarmKitViewProps = {
   url: string;
   onLoad: (event: { nativeEvent: OnLoadEventPayload }) => void;
   style?: StyleProp<ViewStyle>;
 };
+
