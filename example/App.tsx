@@ -19,6 +19,14 @@ export default function App() {
   const [useSoundName, setUseSoundName] = useState<boolean>(true);
   
   const [launchAppOnDismiss, setLaunchAppOnDismiss] = useState<boolean>(true);
+  const [doSnoozeIntent, setDoSnoozeIntent] = useState<boolean>(true);
+  const [launchAppOnSnooze, setLaunchAppOnSnooze] = useState<boolean>(false);
+  
+  const [dismissPayload, setDismissPayload] = useState<string>('dismiss-from-example');
+  const [useDismissPayload, setUseDismissPayload] = useState<boolean>(true);
+  
+  const [snoozePayload, setSnoozePayload] = useState<string>('snooze-from-example');
+  const [useSnoozePayload, setUseSnoozePayload] = useState<boolean>(true);
   
   const [stopButtonLabel, setStopButtonLabel] = useState<string>('Stop');
   const [useStopButtonLabel, setUseStopButtonLabel] = useState<boolean>(true);
@@ -135,6 +143,10 @@ export default function App() {
         epochSeconds: epochSeconds,
         title: 'Test Alarm (5s)',
         launchAppOnDismiss: launchAppOnDismiss,
+        doSnoozeIntent: doSnoozeIntent,
+        launchAppOnSnooze: launchAppOnSnooze,
+        dismissPayload: useDismissPayload ? dismissPayload : undefined,
+        snoozePayload: useSnoozePayload ? snoozePayload : undefined,
         soundName: useSoundName ? soundName : undefined,
         stopButtonLabel: useStopButtonLabel ? stopButtonLabel : undefined,
         snoozeButtonLabel: useSnoozeButtonLabel ? snoozeButtonLabel : undefined,
@@ -163,6 +175,10 @@ export default function App() {
         date: alarmTime, // Using Date object instead of epochSeconds
         title: 'Test Alarm with Date (5s)',
         launchAppOnDismiss: launchAppOnDismiss,
+        doSnoozeIntent: doSnoozeIntent,
+        launchAppOnSnooze: launchAppOnSnooze,
+        dismissPayload: useDismissPayload ? dismissPayload : undefined,
+        snoozePayload: useSnoozePayload ? snoozePayload : undefined,
         soundName: useSoundName ? soundName : undefined,
         stopButtonLabel: useStopButtonLabel ? stopButtonLabel : undefined,
         snoozeButtonLabel: useSnoozeButtonLabel ? snoozeButtonLabel : undefined,
@@ -190,6 +206,10 @@ export default function App() {
         weekdays: [2, 3, 4, 5, 6], // Mon-Fri
         title: 'Weekday Morning Alarm',
         launchAppOnDismiss: launchAppOnDismiss,
+        doSnoozeIntent: doSnoozeIntent,
+        launchAppOnSnooze: launchAppOnSnooze,
+        dismissPayload: useDismissPayload ? dismissPayload : undefined,
+        snoozePayload: useSnoozePayload ? snoozePayload : undefined,
         soundName: useSoundName ? soundName : undefined,
         stopButtonLabel: useStopButtonLabel ? stopButtonLabel : undefined,
         snoozeButtonLabel: useSnoozeButtonLabel ? snoozeButtonLabel : undefined,
@@ -243,6 +263,42 @@ export default function App() {
           <View style={styles.optionRow}>
             <Text>Launch App on Dismiss:</Text>
             <Switch value={launchAppOnDismiss} onValueChange={setLaunchAppOnDismiss} />
+          </View>
+
+          <View style={styles.optionRow}>
+            <Text>Enable Snooze Intent:</Text>
+            <Switch value={doSnoozeIntent} onValueChange={setDoSnoozeIntent} />
+          </View>
+
+          <View style={styles.optionRow}>
+            <Text>Launch App on Snooze:</Text>
+            <Switch value={launchAppOnSnooze} onValueChange={setLaunchAppOnSnooze} />
+          </View>
+
+          <View style={styles.optionRow}>
+            <View style={styles.optionLabelRow}>
+              <Switch value={useDismissPayload} onValueChange={setUseDismissPayload} style={styles.toggle} />
+              <Text>Dismiss Payload:</Text>
+            </View>
+            <TextInput
+              style={[styles.input, !useDismissPayload && styles.disabledInput]}
+              value={dismissPayload}
+              onChangeText={setDismissPayload}
+              editable={useDismissPayload}
+            />
+          </View>
+
+          <View style={styles.optionRow}>
+            <View style={styles.optionLabelRow}>
+              <Switch value={useSnoozePayload} onValueChange={setUseSnoozePayload} style={styles.toggle} />
+              <Text>Snooze Payload:</Text>
+            </View>
+            <TextInput
+              style={[styles.input, !useSnoozePayload && styles.disabledInput]}
+              value={snoozePayload}
+              onChangeText={setSnoozePayload}
+              editable={useSnoozePayload}
+            />
           </View>
           
           <View style={styles.optionRow}>

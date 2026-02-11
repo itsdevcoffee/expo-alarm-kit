@@ -1,6 +1,6 @@
 # expo-alarm-kit
 
-An Expo module for iOS AlarmKit integration. Schedule native iOS alarms with optional app launch on dismissal.
+An Expo module for iOS AlarmKit integration. Schedule native iOS alarms with optional app launch on dismissal or snooze intents.
 
 > **⚠️ Requirements:**
 > * **iOS Deployment Target:** 26.0+
@@ -11,7 +11,8 @@ An Expo module for iOS AlarmKit integration. Schedule native iOS alarms with opt
 
 * 📅 **Schedule Native Alarms:** Create alarms that persist even if the app is killed.
 * 🔄 **Repeating Alarms:** Support for weekly repeating schedules.
-* 🚀 **App Launch Triggers:** Optionally launch your app when the user dismisses the alarm.
+* 🚀 **App Launch Triggers:** Optionally launch your app when the user dismisses or snoozes the alarm.
+* 🧩 **Custom Intent Payloads:** Attach optional payload strings for dismiss/snooze events.
 * 🎨 **Customization:** Configure titles, snooze settings, and tint colors.
 * 💾 **Shared State:** Uses App Groups to synchronize alarm state between the system and your app.
 
@@ -86,7 +87,7 @@ export default function App() {
       console.error('Failed to configure ExpoAlarmKit. Check App Group ID.');
     }
 
-    // 2. Check if app was launched via alarm dismissal
+    // 2. Check if app was launched via an alarm dismiss/snooze intent
     const payload = getLaunchPayload();
     if (payload) {
       console.log('App launched by alarm:', payload.alarmId);
@@ -123,6 +124,10 @@ const handleSchedule = async () => {
     title: 'Power Nap Over',
     soundName: 'alarm.wav', // Must be in Xcode bundle resources
     launchAppOnDismiss: true,
+    dismissPayload: 'nap-dismiss',
+    doSnoozeIntent: true,
+    launchAppOnSnooze: true,
+    snoozePayload: 'nap-snooze',
     snoozeDuration: 300, // 5 minutes
   });
 };
@@ -138,6 +143,10 @@ const handleRepeatingSchedule = async () => {
     weekdays: [2, 3, 4, 5, 6], // 1=Sun, 2=Mon...
     title: 'Work Alarm',
     launchAppOnDismiss: true,
+    dismissPayload: 'work-dismiss',
+    doSnoozeIntent: true,
+    launchAppOnSnooze: false,
+    snoozePayload: 'work-snooze',
   });
 };
 
@@ -167,11 +176,11 @@ This module relies on **iOS App Groups** to share `UserDefaults` between the mai
 * **Persistence:** When you schedule an alarm, the metadata is written to this shared storage.
 * **Sync:** Both the Native Module and the App Extension read from this same source of truth.
 
-### App Launch on Dismiss
+### App Launch on Dismiss/Snooze
 
-When `launchAppOnDismiss: true` is set:
+When `launchAppOnDismiss: true` or (`doSnoozeIntent: true` + `launchAppOnSnooze: true`) is set:
 
-1. The user swipes to dismiss the alarm on the lock screen.
+1. The user dismisses or snoozes the alarm on the lock screen.
 2. The system launches your app in the background/foreground.
 3. The module writes a `LaunchPayload` to the shared storage.
 4. When your React Native JS bundle loads, calling `getLaunchPayload()` retrieves and clears this data, allowing you to react to the event.
@@ -212,6 +221,10 @@ Schedules a non-repeating alarm.
 | `title` | `string` | **Yes** | Main text displayed on lock screen. |
 | `soundName` | `string` | No | Filename of sound in app bundle. |
 | `launchAppOnDismiss` | `boolean` | No | If `true`, opens app when stopped. |
+| `dismissPayload` | `string` | No | Optional payload string for dismiss intent (`null` in payload if omitted). |
+| `doSnoozeIntent` | `boolean` | No | If `true`, enables custom snooze intent (default: `false`). |
+| `launchAppOnSnooze` | `boolean` | No | If `true`, opens app when snooze intent runs. |
+| `snoozePayload` | `string` | No | Optional payload string for snooze intent (`null` in payload if omitted). |
 | `stopButtonLabel` | `string` | No | Text for stop button (default: 'Stop'). |
 | `snoozeButtonLabel` | `string` | No | Text for snooze button. |
 | `stopButtonColor` | `string` | No | Hex color string. |
@@ -235,7 +248,11 @@ Schedules a weekly repeating alarm.
 | `weekdays` | `number[]` | **Yes** | Array of integers: 1 (Sun) to 7 (Sat). |
 | `title` | `string` | **Yes** | Main text displayed. |
 | `launchAppOnDismiss` | `boolean` | No | If `true`, opens app when stopped. |
-| ... | ... | ... | *Supports all visual options from `scheduleAlarm*` |
+| `dismissPayload` | `string` | No | Optional payload string for dismiss intent (`null` in payload if omitted). |
+| `doSnoozeIntent` | `boolean` | No | If `true`, enables custom snooze intent (default: `false`). |
+| `launchAppOnSnooze` | `boolean` | No | If `true`, opens app when snooze intent runs. |
+| `snoozePayload` | `string` | No | Optional payload string for snooze intent (`null` in payload if omitted). |
+| ... | ... | ... | *Supports all visual options from `scheduleAlarm`.* |
 
 ---
 
@@ -260,7 +277,7 @@ Returns data if the app was launched via an alarm.
 ```typescript
 interface LaunchPayload {
   alarmId: string;
-  dismissTime: number; // Unix timestamp
+  payload: string | null;
 }
 
 ```

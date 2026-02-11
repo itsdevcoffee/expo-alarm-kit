@@ -59,6 +59,14 @@ export interface ScheduleAlarmOptions {
   soundName?: string;
   /** Whether to launch the app when the alarm stop button is pressed. Defaults to false. */
   launchAppOnDismiss?: boolean;
+  /** Whether to run a custom snooze intent when the snooze button is pressed. Defaults to false. */
+  doSnoozeIntent?: boolean;
+  /** Whether to launch the app when the custom snooze intent runs. Defaults to false. */
+  launchAppOnSnooze?: boolean;
+  /** Optional payload string returned by getLaunchPayload when dismissed. Defaults to null. */
+  dismissPayload?: string;
+  /** Optional payload string returned by getLaunchPayload when snoozed. Defaults to null. */
+  snoozePayload?: string;
   /** Custom label for the stop button (default: 'Stop') */
   stopButtonLabel?: string;
   /** Custom label for the snooze button (default: 'Snooze') */
@@ -116,6 +124,14 @@ export interface ScheduleRepeatingAlarmOptions {
   soundName?: string;
   /** Whether to launch the app when the alarm stop button is pressed. Defaults to false. */
   launchAppOnDismiss?: boolean;
+  /** Whether to run a custom snooze intent when the snooze button is pressed. Defaults to false. */
+  doSnoozeIntent?: boolean;
+  /** Whether to launch the app when the custom snooze intent runs. Defaults to false. */
+  launchAppOnSnooze?: boolean;
+  /** Optional payload string returned by getLaunchPayload when dismissed. Defaults to null. */
+  dismissPayload?: string;
+  /** Optional payload string returned by getLaunchPayload when snoozed. Defaults to null. */
+  snoozePayload?: string;
   /** Custom label for the stop button (default: 'Stop') */
   stopButtonLabel?: string;
   /** Custom label for the snooze button (default: 'Snooze') */
@@ -171,8 +187,8 @@ export function removeAlarm(id: string): void {
 }
 
 /**
- * Get the launch payload if the app was opened from an alarm dismissal.
- * The payload contains the alarmId and dismissTime.
+ * Get the launch payload if the app was opened from an alarm dismiss/snooze intent.
+ * The payload contains the alarmId and payload string (or null if not provided).
  * Note: The payload is cleared after retrieval, so subsequent calls will return null.
  * @returns The launch payload or null if not launched from an alarm.
  */

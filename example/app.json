@@ -15,7 +15,8 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "expo.modules.alarmkit.example",
-      "appleTeamId": "KTBFQFW59U"
+      "appleTeamId": "KTBFQFW59U",
+      "deploymentTarget": "26.0"
     },
     "android": {
       "adaptiveIcon": {

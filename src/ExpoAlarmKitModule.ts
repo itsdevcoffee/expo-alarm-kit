@@ -4,7 +4,7 @@ export type AuthorizationStatus = 'authorized' | 'denied' | 'notDetermined';
 
 export interface LaunchPayload {
   alarmId: string;
-  dismissTime: number;
+  payload: string | null;
 }
 
 export interface ScheduleAlarmOptions {
@@ -13,6 +13,10 @@ export interface ScheduleAlarmOptions {
   title: string;
   soundName?: string | null;
   launchAppOnDismiss?: boolean;
+  doSnoozeIntent?: boolean;
+  launchAppOnSnooze?: boolean;
+  dismissPayload?: string | null;
+  snoozePayload?: string | null;
   stopButtonLabel?: string | null;
   snoozeButtonLabel?: string | null;
   stopButtonColor?: string | null;
@@ -29,6 +33,10 @@ export interface ScheduleRepeatingAlarmOptions {
   title: string;
   soundName?: string | null;
   launchAppOnDismiss?: boolean;
+  doSnoozeIntent?: boolean;
+  launchAppOnSnooze?: boolean;
+  dismissPayload?: string | null;
+  snoozePayload?: string | null;
   stopButtonLabel?: string | null;
   snoozeButtonLabel?: string | null;
   stopButtonColor?: string | null;
@@ -98,7 +106,7 @@ interface ExpoAlarmKitModuleType {
   clearAllAlarms(): void;
 
   /**
-   * Get the launch payload if the app was opened from an alarm dismissal.
+   * Get the launch payload if the app was opened from an alarm dismiss/snooze intent.
    * The payload is cleared after retrieval.
    * @returns The launch payload or null if not launched from an alarm.
    */
