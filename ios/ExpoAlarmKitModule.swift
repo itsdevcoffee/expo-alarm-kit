@@ -9,7 +9,6 @@ private let alarmKeyPrefix = "ExpoAlarmKit.alarm:"
 private let launchAppKeyPrefix = "ExpoAlarmKit.launchApp:"
 
 // MARK: - App Group Storage Manager
-@available(iOS 26.0, *)
 public class ExpoAlarmKitStorage {
     public static var appGroupIdentifier: String? = nil
     
@@ -64,7 +63,6 @@ public class ExpoAlarmKitStorage {
 }
 
 // MARK: - Record Structs for Expo Module
-@available(iOS 26.0, *)
 struct ScheduleAlarmOptions: Record {
     @Field var id: String
     @Field var epochSeconds: Double
@@ -83,7 +81,6 @@ struct ScheduleAlarmOptions: Record {
     @Field var snoozeDuration: Int?
 }
 
-@available(iOS 26.0, *)
 struct ScheduleRepeatingAlarmOptions: Record {
     @Field var id: String
     @Field var hour: Int
@@ -243,7 +240,6 @@ public struct AlarmSnoozeIntentWithLaunch: LiveActivityIntent {
 }
 
 // MARK: - Expo Module
-@available(iOS 26.0, *)
 public class ExpoAlarmKitModule: Module {
     // Static payload for app launch detection
     public static var launchPayload: [String: Any]? = nil
@@ -266,44 +262,48 @@ public class ExpoAlarmKitModule: Module {
         
         // MARK: - Request Authorization
         AsyncFunction("requestAuthorization") { () -> String in
-            let status = AlarmManager.shared.authorizationState
-            switch status {
-            case .authorized:
-                return "authorized"
-            case .denied:
-                do {
-                    let newStatus = try await AlarmManager.shared.requestAuthorization()
-                    switch newStatus {
-                    case .authorized:
-                        return "authorized"
-                    case .denied:
+            if #available(iOS 26.0, *) {
+                let status = AlarmManager.shared.authorizationState
+                switch status {
+                case .authorized:
+                    return "authorized"
+                case .denied:
+                    do {
+                        let newStatus = try await AlarmManager.shared.requestAuthorization()
+                        switch newStatus {
+                        case .authorized:
+                            return "authorized"
+                        case .denied:
+                            return "denied"
+                        case .notDetermined:
+                            return "notDetermined"
+                        @unknown default:
+                            return "notDetermined"
+                        }
+                    } catch {
                         return "denied"
-                    case .notDetermined:
-                        return "notDetermined"
-                    @unknown default:
-                        return "notDetermined"
                     }
-                } catch {
-                    return "denied"
-                }
-            case .notDetermined:
-                do {
-                    let newStatus = try await AlarmManager.shared.requestAuthorization()
-                    switch newStatus {
-                    case .authorized:
-                        return "authorized"
-                    case .denied:
+                case .notDetermined:
+                    do {
+                        let newStatus = try await AlarmManager.shared.requestAuthorization()
+                        switch newStatus {
+                        case .authorized:
+                            return "authorized"
+                        case .denied:
+                            return "denied"
+                        case .notDetermined:
+                            return "notDetermined"
+                        @unknown default:
+                            return "notDetermined"
+                        }
+                    } catch {
                         return "denied"
-                    case .notDetermined:
-                        return "notDetermined"
-                    @unknown default:
-                        return "notDetermined"
                     }
-                } catch {
-                    return "denied"
+                @unknown default:
+                    return "notDetermined"
                 }
-            @unknown default:
-                return "notDetermined"
+            } else {
+                return "denied"
             }
         }
         
@@ -314,6 +314,7 @@ public class ExpoAlarmKitModule: Module {
         
         // MARK: - Schedule One-Time Alarm
         AsyncFunction("scheduleAlarm") { (options: ScheduleAlarmOptions) async throws -> Bool in
+            if #available(iOS 26.0, *) {
             struct Meta: AlarmMetadata {}
             
             let date = Date(timeIntervalSince1970: options.epochSeconds)
@@ -411,10 +412,14 @@ public class ExpoAlarmKitModule: Module {
                 print("[ExpoAlarmKit] Failed to schedule alarm: \(error)")
                 return false
             }
+            } else {
+                return false
+            }
         }
-        
+
         // MARK: - Schedule Repeating Alarm
         AsyncFunction("scheduleRepeatingAlarm") { ( options: ScheduleRepeatingAlarmOptions) async throws -> Bool in
+            if #available(iOS 26.0, *) {
             struct Meta: AlarmMetadata {}
             
             guard let uuid = UUID(uuidString: options.id) else {
@@ -531,23 +536,29 @@ public class ExpoAlarmKitModule: Module {
                 print("[ExpoAlarmKit] Failed to schedule repeating alarm: \(error)")
                 return false
             }
-        }
-        
-        // MARK: - Cancel Alarm
-        AsyncFunction("cancelAlarm") { (id: String) -> Bool in
-            guard let uuid = UUID(uuidString: id) else {
-                print("[ExpoAlarmKit] Invalid UUID string: \(id)")
+            } else {
                 return false
             }
-            
-            do {
-                try AlarmManager.shared.cancel(id: uuid)
-                // Clean up App Group storage
-                ExpoAlarmKitStorage.removeAlarm(id: id)
-                ExpoAlarmKitStorage.removeLaunchAppOnDismiss(alarmId: id)
-                return true
-            } catch {
-                print("[ExpoAlarmKit] Failed to cancel alarm: \(error)")
+        }
+
+        // MARK: - Cancel Alarm
+        AsyncFunction("cancelAlarm") { (id: String) -> Bool in
+            if #available(iOS 26.0, *) {
+                guard let uuid = UUID(uuidString: id) else {
+                    print("[ExpoAlarmKit] Invalid UUID string: \(id)")
+                    return false
+                }
+                do {
+                    try AlarmManager.shared.cancel(id: uuid)
+                    // Clean up App Group storage
+                    ExpoAlarmKitStorage.removeAlarm(id: id)
+                    ExpoAlarmKitStorage.removeLaunchAppOnDismiss(alarmId: id)
+                    return true
+                } catch {
+                    print("[ExpoAlarmKit] Failed to cancel alarm: \(error)")
+                    return false
+                }
+            } else {
                 return false
             }
         }
